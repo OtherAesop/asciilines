@@ -4,6 +4,10 @@
 // distribution of this software for license terms.
 
 use std::env::args;
+use std::path::Path;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
 
 ///! Render a .tvg file on the command line when passed as an argument
 ///! from standard input
@@ -18,15 +22,31 @@ pub fn parse_tvg(tvg: &str) -> Result<&str, &str>{
     }
 }
 
+pub fn read_file(filepath: &str) -> Result<String,Error>{
+    // File opening code from https://doc.rust-lang.org/rust-by-example/std_misc/file/open.html
+    let path = Path::new(filepath);
+
+    let mut file = File::open(&path)?;
+
+    let mut s = String::new();
+    file.read_to_string(&mut s)?;
+    Ok(s)
+}
+
 /// Do basic error checking and render file
-fn main() {
+fn main(){
 
     let args: Vec<String> = args().collect();
 
     if args.len() == 2 {
         match parse_tvg(&args[1]){
             Ok(_) => {
-                //Render .tvg
+                // Render .tvg
+                let mut tvg = match read_file(&args[1]) {
+                    Ok(s) => s,
+                    Err(msg) => panic!(msg),
+                };
+                println!("{:?}", tvg);
             },
             Err(msg) => println!("Error encountered: {:?}", msg),
         }
