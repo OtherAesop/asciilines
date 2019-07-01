@@ -34,7 +34,7 @@ pub fn read_file(filepath: &str) -> Result<String,Error>{
 }
 
 /// Do basic error checking and render file
-fn main(){
+fn main() -> Result<(),Error>{
 
     let args: Vec<String> = args().collect();
 
@@ -42,15 +42,20 @@ fn main(){
         match parse_tvg(&args[1]){
             Ok(_) => {
                 // Render .tvg
-                let mut tvg = match read_file(&args[1]) {
-                    Ok(s) => s,
-                    Err(msg) => panic!(msg),
+                let tvg = read_file(&args[1])?;
+                let mut commands: Vec<_> = tvg.split("\u{000D}\u{000A}").collect();
+                commands.reverse();
+                let canvas = match commands.pop() {
+                    Some(s) => s,
+                    None    => panic!("Empty file passed."),
                 };
-                println!("{:?}", tvg);
+
+                println!("Canvas Size: {:?}, Commands: {:?}", canvas, commands);
             },
             Err(msg) => println!("Error encountered: {:?}", msg),
         }
     } else {
         println!("Usage: cargo run 'filepath-to-tvg'");
     }
+    Ok(())
 }
