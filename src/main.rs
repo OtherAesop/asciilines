@@ -33,6 +33,34 @@ pub fn read_file(filepath: &str) -> Result<String,Error>{
     Ok(s)
 }
 
+pub fn print_tvg(canvas: &Vec<String>, commands: &Vec<String>){
+
+    let mut board = vec![vec!["."; canvas[0].parse().unwrap()]; canvas[1].parse().unwrap()];
+    let mut curr_command = vec![];
+
+    for command in commands{
+        curr_command = command.split(" ").collect();
+        println!("{:?}", curr_command);
+        match curr_command[3] {
+            "h" => {
+                //let index = curr_command[2].parse::<isize>().unwrap();
+                //for mut elem in &board[curr_command[2].parse::<usize>().unwrap()]{
+                //    elem = &curr_command[0];
+                //}
+            },
+            "v" => {},
+            _   => panic!("unrecognized direction element in .tvg file"),
+        }
+    }
+
+    for row in board{
+        for element in row{
+            print!("{}", element);
+        }
+        println!();
+    }
+}
+
 /// Do basic error checking and render file
 fn main() -> Result<(),Error>{
 
@@ -43,14 +71,19 @@ fn main() -> Result<(),Error>{
             Ok(_) => {
                 // Render .tvg
                 let tvg = read_file(&args[1])?;
-                let mut commands: Vec<_> = tvg.split("\u{000D}\u{000A}").collect();
-                commands.reverse();
-                let canvas = match commands.pop() {
-                    Some(s) => s,
+                let mut temp_commands: Vec<_> = tvg.split("\u{000D}\u{000A}").collect();
+                temp_commands.reverse(); // We want to pop off the canvas size
+                let mut temp_canvas: Vec<_> = match temp_commands.pop() {
+                    Some(s) => (s as &str).split(' ').collect(),
                     None    => panic!("Empty file passed."),
                 };
+                temp_canvas.reverse(); // Put it in order
+                temp_commands.reverse(); // Put it back in order
 
-                println!("Canvas Size: {:?}, Commands: {:?}", canvas, commands);
+                let canvas: Vec<String> = temp_canvas.iter().map(|s| s.to_string()).collect();
+                let commands: Vec<String> = temp_commands.iter().map(|s| s.to_string()).collect();
+
+                print_tvg(&canvas, &commands);
             },
             Err(msg) => println!("Error encountered: {:?}", msg),
         }

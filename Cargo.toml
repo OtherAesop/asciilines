@@ -5,3 +5,4 @@ authors = ["Ian Gore <goreian@pdx.edu>"]
 edition = "2018"
 
 [dependencies]
+ndarray = "0.12.1"
